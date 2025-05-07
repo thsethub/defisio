@@ -1,0 +1,38 @@
+
+services:
+  postgres-db-defisio:
+    image: postgres:16.0-alpine
+    platform: linux/arm64
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: linfedemapp
+      POSTGRES_PASSWORD: linfedemapp
+      POSTGRES_DB: linfedemapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - linfedemapp-network
+
+  defisio-spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db-defisio:5432/linfedemapp
+      SPRING_DATASOURCE_USERNAME: linfedemapp
+      SPRING_DATASOURCE_PASSWORD: linfedemapp
+    depends_on:
+      - postgres-db-defisio
+    networks:
+      - linfedemapp-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  linfedemapp-network:
+    driver: bridge
