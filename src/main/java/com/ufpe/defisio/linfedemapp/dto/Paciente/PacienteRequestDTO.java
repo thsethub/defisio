@@ -34,5 +34,8 @@ public class PacienteRequestDTO {
     private ProcedimentoDetalhado radioterapia;
     private ProcedimentoDetalhado cirurgia;
     private ProcedimentoDetalhado disseccaoAxilar;
+    private ProcedimentoDetalhado hormonoterapia;
+    private String detalhesHormonoterapia;
+    private ProcedimentoDetalhado quimioterapia;
 
 }

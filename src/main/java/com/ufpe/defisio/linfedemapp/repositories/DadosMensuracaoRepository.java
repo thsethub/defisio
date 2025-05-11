@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface DadosMensuracaoRepository extends JpaRepository<DadosMensuracao, UUID> {
     Optional<DadosMensuracao> findByPacienteId(UUID pacienteId);
     List<DadosMensuracao> findAllByPacienteId(UUID pacienteId);
+    void deleteAllByPacienteId(UUID pacienteId);
 }

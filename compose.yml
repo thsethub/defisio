@@ -1,8 +1,7 @@
 
 services:
   postgres-db-defisio:
-    image: postgres:16.0-alpine
-    platform: linux/arm64
+    image: postgres:16.0
     ports:
       - "5432:5432"
     environment:

@@ -32,4 +32,7 @@ public class PatientDTO {
     private RadiotherapyDTO radiotherapy;
     private SurgeryDTO surgery;
     private AxillaryDissectionDTO axillaryDissection;
+    private HormonoterapyDTO hormonoterapy;
+    private String detailsHormonoterapy;
+    private QuimioterapyDTO quimioterapy;
 }

@@ -9,10 +9,10 @@ import com.ufpe.defisio.linfedemapp.repositories.DadosMensuracaoRepository;
 import com.ufpe.defisio.linfedemapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,19 +23,21 @@ public class PacienteService {
     private final DadosMensuracaoRepository dadosMensuracaoRepository;
     private final UserRepository userRepository;
 
-    public List<Paciente> listarPacientesPorUsuario(UUID usuarioId) {
-        return pacienteRepository.findByUsuarioId(usuarioId);
-    }
-
     public Paciente buscarPacientePorId(UUID pacienteId) {
         return pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
     }
 
-    public void deletarPaciente(UUID pacienteId) {
-        Paciente paciente = pacienteRepository.findById(pacienteId)
+    @Transactional
+    public void deletarPaciente(UUID idPaciente) {
+        Paciente paciente = pacienteRepository.findById(idPaciente)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-        pacienteRepository.delete(paciente); // remove em cascata
+
+        // Primeiro, remove os dados de mensuração ligados ao paciente
+        dadosMensuracaoRepository.deleteAllByPacienteId(idPaciente);
+
+        // Depois, remove o paciente
+        pacienteRepository.delete(paciente);
     }
 
     // Metodo para adicionar um novo paciente
@@ -66,6 +68,8 @@ public class PacienteService {
         paciente.setRadioterapia(dto.getRadioterapia());
         paciente.setCirurgia(dto.getCirurgia());
         paciente.setDisseccaoAxilar(dto.getDisseccaoAxilar());
+        paciente.setHormonoterapia(dto.getHormonoterapia());
+        paciente.setQuimioterapia(dto.getQuimioterapia());
 
         paciente.setUsuario(especialista);
 
@@ -98,50 +102,52 @@ public class PacienteService {
     }
 
     // Metodo para retornar paciente com as medições
-    public PacienteComMensuracaoResponseDTO getPacienteComMensuracao(UUID pacienteId) {
-        // Buscar paciente
-        Paciente paciente = pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-
-        // Buscar dados de mensuração
-        Optional<DadosMensuracao> dadosMensuracao = dadosMensuracaoRepository.findByPacienteId(pacienteId);
-
-        // Criar DTO de Medições
-        MeasurementsDTO measurementsDTO = new MeasurementsDTO();
-        dadosMensuracao.ifPresent(dm -> {
-            // Preenchendo as medições com os dados de volumetria e perimetria
-            measurementsDTO.setVolumetry(dm.getVolumetryDTO());
-            measurementsDTO.setPerimetry(dm.getPerimetryDTO());
-        });
-
-        // Criar DTO do Paciente
-        PatientDTO patientDTO = new PatientDTO(
-                paciente.getId(),
-                paciente.getNome(),
-                paciente.getDataNascimento(),
-                paciente.getEndereco(),
-                paciente.getTelefone(),
-                paciente.getPesoCorporal(),
-                paciente.getAltura(),
-                paciente.getNivelAtividadeFisica(),
-                paciente.getEstadoCivil(),
-                paciente.getOcupacao(),
-                paciente.getDataDiagnostiCancer(),
-                paciente.getProcedimentos(), // Lista de procedimentos
-                paciente.getAlteracoesCutaneas(), // Lista de alterações cutâneas
-                paciente.getQueixasMusculoesqueleticas(),
-                paciente.getSintomasLinfedema(),
-                paciente.getSinalCacifo(),
-                paciente.getSinalCascaLaranja(),
-                paciente.getSinalStemmer(),
-                paciente.getRadiotherapyDTO(),  // Usando o DTO de radioterapia
-                paciente.getSurgeryDTO(),      // Usando o DTO de cirurgia
-                paciente.getAxillaryDissectionDTO()  // Usando o DTO de dissecção axilar
-        );
-
-        // Retornar o DTO com Paciente e Medições
-        return new PacienteComMensuracaoResponseDTO(patientDTO, measurementsDTO);
-    }
+//    public PacienteComMensuracaoResponseDTO getPacienteComMensuracao(UUID pacienteId) {
+//        // Buscar paciente
+//        Paciente paciente = pacienteRepository.findById(pacienteId)
+//                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+//
+//        // Buscar dados de mensuração
+//        Optional<DadosMensuracao> dadosMensuracao = dadosMensuracaoRepository.findByPacienteId(pacienteId);
+//
+//        // Criar DTO de Medições
+//        MeasurementsDTO measurementsDTO = new MeasurementsDTO();
+//        dadosMensuracao.ifPresent(dm -> {
+//            // Preenchendo as medições com os dados de volumetria e perimetria
+//            measurementsDTO.setVolumetry(dm.getVolumetryDTO());
+//            measurementsDTO.setPerimetry(dm.getPerimetryDTO());
+//        });
+//
+//        // Criar DTO do Paciente
+//        PatientDTO patientDTO = new PatientDTO(
+//                paciente.getId(),
+//                paciente.getNome(),
+//                paciente.getDataNascimento(),
+//                paciente.getEndereco(),
+//                paciente.getTelefone(),
+//                paciente.getPesoCorporal(),
+//                paciente.getAltura(),
+//                paciente.getNivelAtividadeFisica(),
+//                paciente.getEstadoCivil(),
+//                paciente.getOcupacao(),
+//                paciente.getDataDiagnostiCancer(),
+//                paciente.getProcedimentos(), // Lista de procedimentos
+//                paciente.getAlteracoesCutaneas(), // Lista de alterações cutâneas
+//                paciente.getQueixasMusculoesqueleticas(),
+//                paciente.getSintomasLinfedema(),
+//                paciente.getSinalCacifo(),
+//                paciente.getSinalCascaLaranja(),
+//                paciente.getSinalStemmer(),
+//                paciente.getRadiotherapyDTO(),  // Usando o DTO de radioterapia
+//                paciente.getSurgeryDTO(),      // Usando o DTO de cirurgia
+//                paciente.getAxillaryDissectionDTO(),  // Usando o DTO de dissecção axilar
+//                paciente.getHormonoterapyDTO(),
+//                paciente.getQuimioterapyDTO()
+//        );
+//
+//        // Retornar o DTO com Paciente e Medições
+//        return new PacienteComMensuracaoResponseDTO(patientDTO, measurementsDTO);
+//    }
 
     public List<PatientDTO> listarPacientesDTO(UUID usuarioId) {
         List<Paciente> pacientes = pacienteRepository.findByUsuarioId(usuarioId);
@@ -167,7 +173,10 @@ public class PacienteService {
                 paciente.getSinalStemmer(),
                 paciente.getRadiotherapyDTO(),
                 paciente.getSurgeryDTO(),
-                paciente.getAxillaryDissectionDTO()
+                paciente.getAxillaryDissectionDTO(),
+                paciente.getHormonoterapyDTO(),
+                paciente.getDetalhesHormonoterapia(),
+                paciente.getQuimioterapyDTO()
         )).toList();
     }
 

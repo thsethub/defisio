@@ -2,9 +2,7 @@ package com.ufpe.defisio.linfedemapp.domain.paciente;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ufpe.defisio.linfedemapp.domain.user.User;
-import com.ufpe.defisio.linfedemapp.dto.Paciente.AxillaryDissectionDTO;
-import com.ufpe.defisio.linfedemapp.dto.Paciente.RadiotherapyDTO;
-import com.ufpe.defisio.linfedemapp.dto.Paciente.SurgeryDTO;
+import com.ufpe.defisio.linfedemapp.dto.Paciente.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,7 +49,28 @@ public class Paciente {
     private String sinalStemmer;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "tipo", column = @Column(name = "quimioterapia_tipo")),
+            @AttributeOverride(name = "duracao", column = @Column(name = "quimioterapia_duracao"))
+    })
+    private ProcedimentoDetalhado quimioterapia;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "tipo", column = @Column(name = "radioterapia_tipo")),
+            @AttributeOverride(name = "duracao", column = @Column(name = "radioterapia_duracao"))
+    })
     private ProcedimentoDetalhado radioterapia;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "tipo", column = @Column(name = "hormonoterapia_tipo")),
+            @AttributeOverride(name = "duracao", column = @Column(name = "hormonoterapia_duracao"))
+    })
+    private ProcedimentoDetalhado hormonoterapia;
+
+
+    private String detalhesHormonoterapia;
 
     @Embedded
     @AttributeOverrides({
@@ -85,5 +104,13 @@ public class Paciente {
 
     public AxillaryDissectionDTO getAxillaryDissectionDTO() {
         return disseccaoAxilar != null ? new AxillaryDissectionDTO(disseccaoAxilar.getTipo(), disseccaoAxilar.getDuracao()) : null;
+    }
+
+    public HormonoterapyDTO getHormonoterapyDTO() {
+        return hormonoterapia != null ? new HormonoterapyDTO(hormonoterapia.getTipo(), hormonoterapia.getDuracao()) : null;
+    }
+
+    public QuimioterapyDTO getQuimioterapyDTO() {
+        return quimioterapia != null ? new QuimioterapyDTO(quimioterapia.getTipo(), quimioterapia.getDuracao()) : null;
     }
 }
