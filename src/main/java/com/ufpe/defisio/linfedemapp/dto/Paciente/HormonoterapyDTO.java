@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HormonoterapyDTO {
+    //Tipo
     private String type;
+    //Duração
     private String duration;
 }

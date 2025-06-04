@@ -4,7 +4,7 @@ services:
     image: postgres:16.0-alpine
     platform: linux/arm64
     ports:
-      - "5432:5432"
+      - "5433:5433"
     environment:
       POSTGRES_USER: linfedemapp
       POSTGRES_PASSWORD: linfedemapp
@@ -21,7 +21,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db-defisio:5432/linfedemapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db-defisio:5433/linfedemapp
       SPRING_DATASOURCE_USERNAME: linfedemapp
       SPRING_DATASOURCE_PASSWORD: linfedemapp
     depends_on:
