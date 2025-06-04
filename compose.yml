@@ -3,7 +3,7 @@ services:
   postgres-db-defisio:
     image: postgres:latest
     ports:
-      - "80:80"
+      - "5432:5433"
     environment:
       POSTGRES_USER: linfedemapp
       POSTGRES_PASSWORD: linfedemapp
@@ -20,7 +20,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db-defisio:80/linfedemapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db-defisio:5432/linfedemapp
       SPRING_DATASOURCE_USERNAME: linfedemapp
       SPRING_DATASOURCE_PASSWORD: linfedemapp
     depends_on:
