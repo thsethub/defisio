@@ -3,7 +3,7 @@ services:
   postgres-db-defisio:
     image: postgres:latest
     ports:
-      - "5432:5433"
+      - "5433:5432"
     environment:
       POSTGRES_USER: linfedemapp
       POSTGRES_PASSWORD: linfedemapp
