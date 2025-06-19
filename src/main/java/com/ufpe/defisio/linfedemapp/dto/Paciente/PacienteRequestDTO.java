@@ -37,5 +37,6 @@ public class PacienteRequestDTO {
     private ProcedimentoDetalhado hormonoterapia;
     private String detalhesHormonoterapia;
     private ProcedimentoDetalhado quimioterapia;
+    private String observacaoPaciente;
 
 }

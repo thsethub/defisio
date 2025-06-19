@@ -86,6 +86,8 @@ public class Paciente {
     })
     private ProcedimentoDetalhado disseccaoAxilar;
 
+    private String observacaoPaciente;
+
     // Relacionamento com especialista (usuário)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false )

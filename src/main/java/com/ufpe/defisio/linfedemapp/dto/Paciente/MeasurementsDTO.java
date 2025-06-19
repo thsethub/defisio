@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class MeasurementsDTO {
     private VolumetryDTO volumetry;
     private PerimetryDTO perimetry;
+    private String tipoReferencia;
+    private String observacaoMedicao;
 }

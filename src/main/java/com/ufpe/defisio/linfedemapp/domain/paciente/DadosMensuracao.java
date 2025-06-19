@@ -55,7 +55,8 @@ public class DadosMensuracao {
     @ElementCollection
     private List<Double> differences;
 
-    // Métodos de acesso para DTOs
+    private String tipoReferencia;
+    private String observacaoMedicao;
 
     public VolumetryDTO getVolumetryDTO() {
         return new VolumetryDTO(referenceArm, affectedArm, volumesReferencia, volumesAfetado, volumeDifference);

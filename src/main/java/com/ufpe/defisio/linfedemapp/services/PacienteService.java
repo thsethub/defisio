@@ -71,6 +71,8 @@ public class PacienteService {
         paciente.setHormonoterapia(dto.getHormonoterapia());
         paciente.setQuimioterapia(dto.getQuimioterapia());
 
+        paciente.setObservacaoPaciente(dto.getObservacaoPaciente());
+
         paciente.setUsuario(especialista);
 
         return pacienteRepository.save(paciente);
@@ -85,6 +87,8 @@ public class PacienteService {
 
         DadosMensuracao dados = new DadosMensuracao();
         dados.setPaciente(paciente);
+        dados.setTipoReferencia(dto.getTipoReferencia());
+        dados.setObservacaoMedicao(dto.getObservacaoMedicao());
         dados.setDataAvaliacao(LocalDate.now()); // Define a data da requisição
         dados.setReferenceArm(vol.getReferenceArm());
         dados.setAffectedArm(vol.getAffectedArm());
@@ -176,7 +180,8 @@ public class PacienteService {
                 paciente.getAxillaryDissectionDTO(),
                 paciente.getHormonoterapyDTO(),
                 paciente.getDetalhesHormonoterapia(),
-                paciente.getQuimioterapyDTO()
+                paciente.getQuimioterapyDTO(),
+                paciente.getObservacaoPaciente()
         )).toList();
     }
 
