@@ -600,7 +600,7 @@ Este projeto está licenciado sob a licença [MIT](LICENSE).
 ## Contato
 
 Para dúvidas ou suporte:
-- **Email:** [Inserir email de contato]
+- **Email:** thsethub@gmail.com
 - **GitHub:** [thsethub](https://github.com/thsethub)
 - **Projeto:** [DEFISIO](https://github.com/thsethub/defisio)
 
