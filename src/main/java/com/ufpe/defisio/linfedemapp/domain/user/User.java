@@ -3,6 +3,7 @@ package com.ufpe.defisio.linfedemapp.domain.user;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -22,5 +23,9 @@ public class User {
     private String telefone;
     private String titulacao;
     private String password;
+
+    //Redefinição de Senha
+    private String resetPasswordToken;
+    private LocalDateTime resetPasswordTokenExpiry;
 
 }
