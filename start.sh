@@ -42,7 +42,7 @@ echo "[$(date)] API rodando na porta 8083"
 
 # Iniciar ngrok tunnel
 echo "[$(date)] Iniciando ngrok tunnel na porta 8083..."
-ngrok http 8083 --log=stdout &
+ngrok http 8083 --log=stdout --api-addr 0.0.0.0:4040 &
 NGROK_PID=$!
 
 # Aguardar ngrok e capturar URL
