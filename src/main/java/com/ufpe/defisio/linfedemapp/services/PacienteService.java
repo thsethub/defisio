@@ -33,14 +33,10 @@ public class PacienteService {
         Paciente paciente = pacienteRepository.findById(idPaciente)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
 
-        // Primeiro, remove os dados de mensuração ligados ao paciente
         dadosMensuracaoRepository.deleteAllByPacienteId(idPaciente);
-
-        // Depois, remove o paciente
         pacienteRepository.delete(paciente);
     }
 
-    // Metodo para adicionar um novo paciente
     public Paciente addPaciente(PacienteRequestDTO dto) {
         User especialista = userRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Especialista não encontrado"));
@@ -89,7 +85,7 @@ public class PacienteService {
         dados.setPaciente(paciente);
         dados.setTipoReferencia(dto.getTipoReferencia());
         dados.setObservacaoMedicao(dto.getObservacaoMedicao());
-        dados.setDataAvaliacao(LocalDate.now()); // Define a data da requisição
+        dados.setDataAvaliacao(LocalDate.now());
         dados.setReferenceArm(vol.getReferenceArm());
         dados.setAffectedArm(vol.getAffectedArm());
         dados.setVolumesReferencia(vol.getVolumesReferencia());
@@ -104,54 +100,6 @@ public class PacienteService {
 
         return dadosMensuracaoRepository.save(dados);
     }
-
-    // Metodo para retornar paciente com as medições
-//    public PacienteComMensuracaoResponseDTO getPacienteComMensuracao(UUID pacienteId) {
-//        // Buscar paciente
-//        Paciente paciente = pacienteRepository.findById(pacienteId)
-//                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-//
-//        // Buscar dados de mensuração
-//        Optional<DadosMensuracao> dadosMensuracao = dadosMensuracaoRepository.findByPacienteId(pacienteId);
-//
-//        // Criar DTO de Medições
-//        MeasurementsDTO measurementsDTO = new MeasurementsDTO();
-//        dadosMensuracao.ifPresent(dm -> {
-//            // Preenchendo as medições com os dados de volumetria e perimetria
-//            measurementsDTO.setVolumetry(dm.getVolumetryDTO());
-//            measurementsDTO.setPerimetry(dm.getPerimetryDTO());
-//        });
-//
-//        // Criar DTO do Paciente
-//        PatientDTO patientDTO = new PatientDTO(
-//                paciente.getId(),
-//                paciente.getNome(),
-//                paciente.getDataNascimento(),
-//                paciente.getEndereco(),
-//                paciente.getTelefone(),
-//                paciente.getPesoCorporal(),
-//                paciente.getAltura(),
-//                paciente.getNivelAtividadeFisica(),
-//                paciente.getEstadoCivil(),
-//                paciente.getOcupacao(),
-//                paciente.getDataDiagnostiCancer(),
-//                paciente.getProcedimentos(), // Lista de procedimentos
-//                paciente.getAlteracoesCutaneas(), // Lista de alterações cutâneas
-//                paciente.getQueixasMusculoesqueleticas(),
-//                paciente.getSintomasLinfedema(),
-//                paciente.getSinalCacifo(),
-//                paciente.getSinalCascaLaranja(),
-//                paciente.getSinalStemmer(),
-//                paciente.getRadiotherapyDTO(),  // Usando o DTO de radioterapia
-//                paciente.getSurgeryDTO(),      // Usando o DTO de cirurgia
-//                paciente.getAxillaryDissectionDTO(),  // Usando o DTO de dissecção axilar
-//                paciente.getHormonoterapyDTO(),
-//                paciente.getQuimioterapyDTO()
-//        );
-//
-//        // Retornar o DTO com Paciente e Medições
-//        return new PacienteComMensuracaoResponseDTO(patientDTO, measurementsDTO);
-//    }
 
     public List<PatientDTO> listarPacientesDTO(UUID usuarioId) {
         List<Paciente> pacientes = pacienteRepository.findByUsuarioId(usuarioId);

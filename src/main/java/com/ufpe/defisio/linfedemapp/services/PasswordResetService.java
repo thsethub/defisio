@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Service
 public class PasswordResetService {
@@ -67,7 +67,6 @@ public class PasswordResetService {
     }
 
     private String generateResetToken() {
-        // Gera um código numérico de 6 dígitos
-        return String.format("%06d", new Random().nextInt(999999));
+        return String.format("%06d", new SecureRandom().nextInt(1000000));
     }
 }
