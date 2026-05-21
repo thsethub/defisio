@@ -11,6 +11,7 @@ echo "=========================================================="
 if [ -n "$NGROK_AUTHTOKEN" ]; then
     echo "[$(date)] Configurando ngrok authtoken..."
     ngrok config add-authtoken $NGROK_AUTHTOKEN
+    echo "web_addr: 0.0.0.0:4040" >> $HOME/.config/ngrok/ngrok.yml
 else
     echo "[$(date)] ERRO: NGROK_AUTHTOKEN não definido!"
     exit 1
@@ -42,7 +43,7 @@ echo "[$(date)] API rodando na porta 8083"
 
 # Iniciar ngrok tunnel
 echo "[$(date)] Iniciando ngrok tunnel na porta 8083..."
-ngrok http 8083 --log=stdout --web-addr 0.0.0.0:4040 &
+ngrok http 8083 --log=stdout &
 NGROK_PID=$!
 
 # Aguardar ngrok e capturar URL
