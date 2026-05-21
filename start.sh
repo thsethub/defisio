@@ -7,29 +7,21 @@ echo "=========================================================="
 echo "  DEFISIO API - Inicializando..."
 echo "=========================================================="
 
-# Configurar ngrok authtoken
 if [ -n "$NGROK_AUTHTOKEN" ]; then
     echo "[$(date)] Configurando ngrok authtoken..."
     ngrok config add-authtoken $NGROK_AUTHTOKEN
-    echo "web_addr: 0.0.0.0:4040" >> $HOME/.config/ngrok/ngrok.yml
 else
     echo "[$(date)] ERRO: NGROK_AUTHTOKEN não definido!"
     exit 1
 fi
 
-# Aguardar PostgreSQL (healthcheck do compose cuida, mas garantir)
-echo "[$(date)] Aguardando PostgreSQL..."
-sleep 5
-
-# Iniciar a aplicação Java em background
 echo "[$(date)] Iniciando aplicação Java..."
 java -jar target/defisio-0.0.1-SNAPSHOT.jar &
 JAVA_PID=$!
 
-# Aguardar a aplicação iniciar
 echo "[$(date)] Aguardando API subir..."
 RETRIES=0
-until curl -sf http://localhost:8083/actuator/health > /dev/null 2>&1 || [ $RETRIES -eq 60 ]; do
+until curl -sf http://localhost:8083/actuator/health > /dev/null 2>&1 || [ $RETRIES -eq 30 ]; do
     RETRIES=$((RETRIES + 1))
     sleep 2
 done
@@ -41,14 +33,19 @@ fi
 
 echo "[$(date)] API rodando na porta 8083"
 
-# Iniciar ngrok tunnel
 echo "[$(date)] Iniciando ngrok tunnel na porta 8083..."
 ngrok http 8083 --log=stdout &
-NGROK_PID=$!
 
-# Aguardar ngrok e capturar URL
-sleep 8
-NGROK_URL=$(curl -sf http://localhost:4040/api/tunnels | grep -o '"public_url":"https://[^"]*' | grep -o 'https://[^"]*' | head -1 || true)
+echo "[$(date)] Aguardando URL do ngrok..."
+RETRIES=0
+NGROK_URL=""
+until [ -n "$NGROK_URL" ] || [ $RETRIES -eq 15 ]; do
+    NGROK_URL=$(curl -sf http://localhost:4040/api/tunnels | grep -o '"public_url":"https://[^"]*' | grep -o 'https://[^"]*' | head -1 || true)
+    if [ -z "$NGROK_URL" ]; then
+        RETRIES=$((RETRIES + 1))
+        sleep 2
+    fi
+done
 
 echo ""
 echo "=========================================================="
@@ -59,12 +56,9 @@ echo "  Ngrok:  ${NGROK_URL:-Aguardando...}"
 echo "=========================================================="
 echo ""
 
-# Persistir URL no log
 echo "[$(date)] API_LOCAL=http://localhost:8083" >> /var/log/defisio/urls.log
 echo "[$(date)] API_NGROK_URL=${NGROK_URL}" >> /var/log/defisio/urls.log
-echo "[$(date)] NGROK_DASHBOARD=http://localhost:4040" >> /var/log/defisio/urls.log
 
-# Loop para manter logando a URL periodicamente (caso mude)
 (
   while true; do
     sleep 60
@@ -75,5 +69,4 @@ echo "[$(date)] NGROK_DASHBOARD=http://localhost:4040" >> /var/log/defisio/urls.
   done
 ) &
 
-# Manter o container rodando
 wait $JAVA_PID
