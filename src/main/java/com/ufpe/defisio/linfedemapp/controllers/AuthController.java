@@ -4,6 +4,7 @@ import com.ufpe.defisio.linfedemapp.domain.user.User;
 import com.ufpe.defisio.linfedemapp.dto.LoginRequestDTO;
 import com.ufpe.defisio.linfedemapp.dto.RegisterRequestDTO;
 import com.ufpe.defisio.linfedemapp.dto.ResponseDTO;
+import com.ufpe.defisio.linfedemapp.dto.UpdateProfileDTO;
 import com.ufpe.defisio.linfedemapp.dto.UserResponseDTO;
 import com.ufpe.defisio.linfedemapp.dto.user.ForgotPasswordRequestDTO;
 import com.ufpe.defisio.linfedemapp.dto.user.ResetPasswordRequestDTO;
@@ -103,13 +104,38 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomAuthenticatedUser authenticatedUser = (CustomAuthenticatedUser) authentication.getPrincipal();
 
-        // Verifica se o usuário ainda existe no banco
         Optional<User> userOptional = repository.findById(authenticatedUser.getId());
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(404).body("Usuário não encontrado");
         }
 
         User user = userOptional.get();
+        return ResponseEntity.ok(new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getIdade(),
+                user.getTelefone(),
+                user.getOrigem(),
+                user.getTitulacao()));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<?> updateMe(@RequestBody UpdateProfileDTO body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomAuthenticatedUser authenticatedUser = (CustomAuthenticatedUser) authentication.getPrincipal();
+
+        Optional<User> userOptional = repository.findById(authenticatedUser.getId());
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(404).body("Usuário não encontrado");
+        }
+
+        User user = userOptional.get();
+        if (body.titulacao() != null) user.setTitulacao(body.titulacao());
+        if (body.telefone() != null) user.setTelefone(body.telefone());
+        if (body.origem() != null) user.setOrigem(body.origem());
+        repository.save(user);
+
         return ResponseEntity.ok(new UserResponseDTO(
                 user.getId(),
                 user.getName(),
