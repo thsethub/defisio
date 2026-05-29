@@ -23,9 +23,15 @@ public class PacienteService {
     private final DadosMensuracaoRepository dadosMensuracaoRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public Paciente buscarPacientePorId(UUID pacienteId) {
-        return pacienteRepository.findById(pacienteId)
+        Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+        // open-in-view=false: inicializa as coleções LAZY enquanto a sessão está aberta,
+        // evitando LazyInitializationException na serialização JSON
+        paciente.getProcedimentos().size();
+        paciente.getAlteracoesCutaneas().size();
+        return paciente;
     }
 
     @Transactional
@@ -101,6 +107,7 @@ public class PacienteService {
         return dadosMensuracaoRepository.save(dados);
     }
 
+    @Transactional(readOnly = true)
     public List<PatientDTO> listarPacientesDTO(UUID usuarioId) {
         List<Paciente> pacientes = pacienteRepository.findByUsuarioId(usuarioId);
 
@@ -133,6 +140,7 @@ public class PacienteService {
         )).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<DadosMensuracao> listarMensuracoesPorPaciente(UUID pacienteId, UUID usuarioId) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
