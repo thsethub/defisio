@@ -1,7 +1,7 @@
 package com.ufpe.defisio.linfedemapp.controllers;
 
-import com.ufpe.defisio.linfedemapp.domain.paciente.DadosMensuracao;
 import com.ufpe.defisio.linfedemapp.domain.paciente.Paciente;
+import com.ufpe.defisio.linfedemapp.dto.Paciente.MeasurementResponseDTO;
 import com.ufpe.defisio.linfedemapp.dto.Paciente.MeasurementsDTO;
 import com.ufpe.defisio.linfedemapp.dto.Paciente.PacienteRequestDTO;
 import com.ufpe.defisio.linfedemapp.dto.Paciente.PatientDTO;
@@ -21,8 +21,8 @@ public class PacienteController {
     private final PacienteService pacienteService;
 
     @PostMapping
-    public ResponseEntity<Paciente> addPaciente(@RequestBody PacienteRequestDTO dto) {
-        Paciente novoPaciente = pacienteService.addPaciente(dto);
+    public ResponseEntity<PatientDTO> addPaciente(@RequestBody PacienteRequestDTO dto) {
+        PatientDTO novoPaciente = pacienteService.addPaciente(dto);
         return ResponseEntity.ok(novoPaciente);
     }
 
@@ -32,7 +32,7 @@ public class PacienteController {
     }
 
     @GetMapping("/usuario/{usuarioId}/{pacienteId}/mensuracoes")
-    public ResponseEntity<List<DadosMensuracao>> listarMensuracoesPorPaciente(
+    public ResponseEntity<List<MeasurementResponseDTO>> listarMensuracoesPorPaciente(
             @PathVariable UUID usuarioId,
             @PathVariable UUID pacienteId
     ) {
@@ -41,8 +41,7 @@ public class PacienteController {
 
     @GetMapping("/{pacienteId}")
     public ResponseEntity<Paciente> buscarPacientePorId(@PathVariable UUID pacienteId) {
-        Paciente paciente = pacienteService.buscarPacientePorId(pacienteId);
-        return ResponseEntity.ok(paciente);
+        return ResponseEntity.ok(pacienteService.buscarPacientePorId(pacienteId));
     }
 
     @DeleteMapping("/{pacienteId}")
@@ -52,8 +51,11 @@ public class PacienteController {
     }
 
     @PostMapping("/{pacienteId}/mensuracao")
-    public ResponseEntity<?> adicionarMensuracao(@PathVariable UUID pacienteId, @RequestBody MeasurementsDTO measurementsDTO) {
-        var dadosSalvos = pacienteService.addDadosMensuracao(pacienteId, measurementsDTO);
+    public ResponseEntity<MeasurementResponseDTO> adicionarMensuracao(
+            @PathVariable UUID pacienteId,
+            @RequestBody MeasurementsDTO measurementsDTO
+    ) {
+        MeasurementResponseDTO dadosSalvos = pacienteService.addDadosMensuracao(pacienteId, measurementsDTO);
         return ResponseEntity.ok(dadosSalvos);
     }
 

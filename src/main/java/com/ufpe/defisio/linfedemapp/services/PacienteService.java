@@ -28,10 +28,15 @@ public class PacienteService {
     public Paciente buscarPacientePorId(UUID pacienteId) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-        // open-in-view=false: inicializa as coleções LAZY enquanto a sessão está aberta,
-        // evitando LazyInitializationException na serialização JSON
-        paciente.getProcedimentos().size();
-        paciente.getAlteracoesCutaneas().size();
+        // open-in-view=false: inicializa as coleções LAZY enquanto a sessão está
+        // aberta. A entidade é retornada como está (nomes em PT) porque a tela de
+        // histórico/detalhes e o PDF consomem exatamente esses campos.
+        if (paciente.getProcedimentos() != null) {
+            paciente.getProcedimentos().size();
+        }
+        if (paciente.getAlteracoesCutaneas() != null) {
+            paciente.getAlteracoesCutaneas().size();
+        }
         return paciente;
     }
 
@@ -44,7 +49,8 @@ public class PacienteService {
         pacienteRepository.delete(paciente);
     }
 
-    public Paciente addPaciente(PacienteRequestDTO dto) {
+    @Transactional
+    public PatientDTO addPaciente(PacienteRequestDTO dto) {
         User especialista = userRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Especialista não encontrado"));
 
@@ -78,10 +84,12 @@ public class PacienteService {
 
         paciente.setUsuario(especialista);
 
-        return pacienteRepository.save(paciente);
+        Paciente salvo = pacienteRepository.save(paciente);
+        return toPatientDTO(salvo);
     }
 
-    public DadosMensuracao addDadosMensuracao(UUID pacienteId, MeasurementsDTO dto) {
+    @Transactional
+    public MeasurementResponseDTO addDadosMensuracao(UUID pacienteId, MeasurementsDTO dto) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
 
@@ -105,51 +113,19 @@ public class PacienteService {
         dados.setRightArmComprimento(peri.getRightArmComprimento());
         dados.setDifferences(peri.getDifferences());
 
-        return dadosMensuracaoRepository.save(dados);
+        DadosMensuracao salvo = dadosMensuracaoRepository.save(dados);
+        return toMeasurementDTO(salvo);
     }
 
     @Transactional(readOnly = true)
     public List<PatientDTO> listarPacientesDTO(UUID usuarioId) {
-        List<Paciente> pacientes = pacienteRepository.findByUsuarioId(usuarioId);
-
-        return pacientes.stream().map(paciente -> new PatientDTO(
-                paciente.getId(),
-                paciente.getNome(),
-                paciente.getDataNascimento(),
-                paciente.getEndereco(),
-                paciente.getTelefone(),
-                paciente.getPesoCorporal(),
-                paciente.getAltura(),
-                paciente.getNivelAtividadeFisica(),
-                paciente.getEstadoCivil(),
-                paciente.getOcupacao(),
-                paciente.getDataDiagnostiCancer(),
-                // open-in-view=false: copia as coleções LAZY para listas simples,
-                // forçando a inicialização dentro da transação e desacoplando do proxy
-                // (do contrário a serialização JSON falha com LazyInitializationException)
-                paciente.getProcedimentos() != null
-                        ? new ArrayList<>(paciente.getProcedimentos())
-                        : new ArrayList<String>(),
-                paciente.getAlteracoesCutaneas() != null
-                        ? new ArrayList<>(paciente.getAlteracoesCutaneas())
-                        : new ArrayList<String>(),
-                paciente.getQueixasMusculoesqueleticas(),
-                paciente.getSintomasLinfedema(),
-                paciente.getSinalCacifo(),
-                paciente.getSinalCascaLaranja(),
-                paciente.getSinalStemmer(),
-                paciente.getRadiotherapyDTO(),
-                paciente.getSurgeryDTO(),
-                paciente.getAxillaryDissectionDTO(),
-                paciente.getHormonoterapyDTO(),
-                paciente.getDetalhesHormonoterapia(),
-                paciente.getQuimioterapyDTO(),
-                paciente.getObservacaoPaciente()
-        )).toList();
+        return pacienteRepository.findByUsuarioId(usuarioId).stream()
+                .map(this::toPatientDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<DadosMensuracao> listarMensuracoesPorPaciente(UUID pacienteId, UUID usuarioId) {
+    public List<MeasurementResponseDTO> listarMensuracoesPorPaciente(UUID pacienteId, UUID usuarioId) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
 
@@ -157,6 +133,67 @@ public class PacienteService {
             throw new RuntimeException("Este paciente não pertence ao usuário informado");
         }
 
-        return dadosMensuracaoRepository.findAllByPacienteId(pacienteId);
+        return dadosMensuracaoRepository.findAllByPacienteId(pacienteId).stream()
+                .map(this::toMeasurementDTO)
+                .toList();
+    }
+
+    // ---------- Mapeadores entidade -> DTO ----------
+    // As cópias para ArrayList forçam a inicialização das coleções LAZY dentro da
+    // transação e as desacoplam do proxy do Hibernate, evitando o
+    // LazyInitializationException na serialização JSON (open-in-view=false).
+
+    private PatientDTO toPatientDTO(Paciente p) {
+        return new PatientDTO(
+                p.getId(),
+                p.getNome(),
+                p.getDataNascimento(),
+                p.getEndereco(),
+                p.getTelefone(),
+                p.getPesoCorporal(),
+                p.getAltura(),
+                p.getNivelAtividadeFisica(),
+                p.getEstadoCivil(),
+                p.getOcupacao(),
+                p.getDataDiagnostiCancer(),
+                copy(p.getProcedimentos()),
+                copy(p.getAlteracoesCutaneas()),
+                p.getQueixasMusculoesqueleticas(),
+                p.getSintomasLinfedema(),
+                p.getSinalCacifo(),
+                p.getSinalCascaLaranja(),
+                p.getSinalStemmer(),
+                p.getRadiotherapyDTO(),
+                p.getSurgeryDTO(),
+                p.getAxillaryDissectionDTO(),
+                p.getHormonoterapyDTO(),
+                p.getDetalhesHormonoterapia(),
+                p.getQuimioterapyDTO(),
+                p.getObservacaoPaciente()
+        );
+    }
+
+    private MeasurementResponseDTO toMeasurementDTO(DadosMensuracao d) {
+        return new MeasurementResponseDTO(
+                d.getId(),
+                d.getDataAvaliacao(),
+                d.getReferenceArm(),
+                d.getAffectedArm(),
+                copy(d.getVolumesReferencia()),
+                copy(d.getVolumesAfetado()),
+                d.getVolumeDifference(),
+                d.getPontosRef(),
+                copy(d.getLeftArmInputs()),
+                copy(d.getRightArmInputs()),
+                d.getLeftArmComprimento(),
+                d.getRightArmComprimento(),
+                copy(d.getDifferences()),
+                d.getTipoReferencia(),
+                d.getObservacaoMedicao()
+        );
+    }
+
+    private <T> List<T> copy(List<T> source) {
+        return source != null ? new ArrayList<>(source) : new ArrayList<>();
     }
 }
