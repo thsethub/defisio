@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -123,8 +124,15 @@ public class PacienteService {
                 paciente.getEstadoCivil(),
                 paciente.getOcupacao(),
                 paciente.getDataDiagnostiCancer(),
-                paciente.getProcedimentos(),
-                paciente.getAlteracoesCutaneas(),
+                // open-in-view=false: copia as coleções LAZY para listas simples,
+                // forçando a inicialização dentro da transação e desacoplando do proxy
+                // (do contrário a serialização JSON falha com LazyInitializationException)
+                paciente.getProcedimentos() != null
+                        ? new ArrayList<>(paciente.getProcedimentos())
+                        : new ArrayList<String>(),
+                paciente.getAlteracoesCutaneas() != null
+                        ? new ArrayList<>(paciente.getAlteracoesCutaneas())
+                        : new ArrayList<String>(),
                 paciente.getQueixasMusculoesqueleticas(),
                 paciente.getSintomasLinfedema(),
                 paciente.getSinalCacifo(),
