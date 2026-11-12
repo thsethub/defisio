@@ -39,4 +39,9 @@ public class PacienteRequestDTO {
     private ProcedimentoDetalhado quimioterapia;
     private String observacaoPaciente;
 
+    // "right" | "left": lado da cirurgia/câncer (membro acometido)
+    private String ladoAcometido;
+    // JSON com os dados da ficha detalhada (sem coluna própria)
+    private String fichaDetalhada;
+
 }

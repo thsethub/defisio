@@ -81,6 +81,8 @@ public class PacienteService {
         paciente.setQuimioterapia(dto.getQuimioterapia());
 
         paciente.setObservacaoPaciente(dto.getObservacaoPaciente());
+        paciente.setLadoAcometido(dto.getLadoAcometido());
+        paciente.setFichaDetalhada(dto.getFichaDetalhada());
 
         paciente.setUsuario(especialista);
 
@@ -169,7 +171,9 @@ public class PacienteService {
                 p.getHormonoterapyDTO(),
                 p.getDetalhesHormonoterapia(),
                 p.getQuimioterapyDTO(),
-                p.getObservacaoPaciente()
+                p.getObservacaoPaciente(),
+                p.getLadoAcometido(),
+                p.getFichaDetalhada()
         );
     }
 

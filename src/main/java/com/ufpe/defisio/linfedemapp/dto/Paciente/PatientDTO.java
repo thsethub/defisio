@@ -36,4 +36,6 @@ public class PatientDTO {
     private String detailsHormonoterapy;
     private QuimioterapyDTO quimioterapy;
     private String observation;
+    private String affectedSide;
+    private String detailedRecord;
 }

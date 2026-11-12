@@ -88,6 +88,11 @@ public class Paciente {
 
     private String observacaoPaciente;
 
+    private String ladoAcometido;
+
+    @Column(columnDefinition = "TEXT")
+    private String fichaDetalhada;
+
     // Relacionamento com especialista (usuário)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false )
