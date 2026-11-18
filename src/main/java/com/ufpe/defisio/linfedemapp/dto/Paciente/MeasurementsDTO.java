@@ -12,4 +12,7 @@ public class MeasurementsDTO {
     private PerimetryDTO perimetry;
     private String tipoReferencia;
     private String observacaoMedicao;
+    // Avaliação clínica do fisioterapeuta (opcionais)
+    private String estagioClinico;      // subclinical | I | II | III (ISL 2023)
+    private String observacaoClinica;
 }

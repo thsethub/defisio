@@ -102,6 +102,8 @@ public class PacienteService {
         dados.setPaciente(paciente);
         dados.setTipoReferencia(dto.getTipoReferencia());
         dados.setObservacaoMedicao(dto.getObservacaoMedicao());
+        dados.setEstagioClinico(dto.getEstagioClinico());
+        dados.setObservacaoClinica(dto.getObservacaoClinica());
         dados.setDataAvaliacao(LocalDate.now());
         dados.setReferenceArm(vol.getReferenceArm());
         dados.setAffectedArm(vol.getAffectedArm());
@@ -193,7 +195,9 @@ public class PacienteService {
                 d.getRightArmComprimento(),
                 copy(d.getDifferences()),
                 d.getTipoReferencia(),
-                d.getObservacaoMedicao()
+                d.getObservacaoMedicao(),
+                d.getEstagioClinico(),
+                d.getObservacaoClinica()
         );
     }
 

@@ -58,6 +58,11 @@ public class DadosMensuracao {
     private String tipoReferencia;
     private String observacaoMedicao;
 
+    private String estagioClinico;
+
+    @Column(columnDefinition = "TEXT")
+    private String observacaoClinica;
+
     public VolumetryDTO getVolumetryDTO() {
         return new VolumetryDTO(referenceArm, affectedArm, volumesReferencia, volumesAfetado, volumeDifference);
     }

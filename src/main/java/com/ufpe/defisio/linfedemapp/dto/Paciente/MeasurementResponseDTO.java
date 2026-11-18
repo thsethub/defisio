@@ -33,4 +33,6 @@ public class MeasurementResponseDTO {
     private List<Double> differences;
     private String tipoReferencia;
     private String observacaoMedicao;
+    private String estagioClinico;
+    private String observacaoClinica;
 }
